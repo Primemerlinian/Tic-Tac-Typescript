@@ -20,3 +20,103 @@ function init() {
 }
 
 init()
+const squareEls: NodeListOf<Element> = document.querySelectorAll('.sqr');
+const messageEl: HTMLElement | null = document.querySelector('#message');
+const boardEl: HTMLElement | null = document.querySelector('.board');
+const resetBtnEl: HTMLElement | null = document.querySelector('#reset-button');
+
+
+boardEl?.addEventListener('click', handleClick);
+resetBtnEl?.addEventListener('click', init);
+
+
+squareEls.forEach(square => square.addEventListener("click", (handleClick as (evt: Event) => void)));
+
+
+
+if (resetBtnEl) resetBtnEl.addEventListener("click", init);
+
+function render(evt: Event): void {
+  updateBoard();
+  updateMessage();
+}
+
+
+function updateBoard(): void {
+  board.forEach((space, idx) => {
+    const choice = squareEls[idx] as HTMLElement;
+    if (space === null) {
+      choice.textContent = '';
+      return;
+    }
+    resetBtnEl.removeAttribute('hidden');
+    if (space == 1) {
+      choice.textContent = 'X';
+    } else if (space === -1) {
+      choice.textContent = 'O';
+    }
+  });
+}
+
+function updateMessage(): void {
+  if (turn === -1 && winner === null) {
+    console.log(turn, winner)
+    messageEl.textContent = 'Player X turn!';
+  } else if (turn === 1 && winner === null) {
+    messageEl.textContent = 'Player O turn!';
+  } else if (winner === 't') {
+    messageEl.textContent = "It's a Tie!";
+  } else if (winner === 1) {
+    messageEl.textContent = 'Congratulations X won!';
+  } else if (winner === -1) {
+    messageEl.textContent = 'Congratulations O won!';
+  }
+}
+
+function handleClick(evt: MouseEvent): void {
+  const sqIdx: number = parseInt((evt.target as HTMLElement).id[2]);
+  if (board[sqIdx]) {
+    return;
+  }
+  board[sqIdx] = turn;
+  turn = turn * -1;
+  winner = null;
+  placePiece(sqIdx);
+  checkForWinner(sqIdx);
+  render();
+}
+
+function placePiece(idx: number): void {
+  board[idx] = turn;
+}
+
+function checkForWinner(): void {
+  let totals: number[] = [];
+
+  winningCombos.forEach(combo => {
+    console.log(combo);
+    const sum = board[combo[0]] + board[combo[1]] + board[combo[2]];
+    console.log(sum);
+    totals.push(sum);
+  });
+
+  let xIsWinner = totals.some(x => x === 3);
+  console.log('X', xIsWinner);
+
+  let oIsWinner = totals.some(o => o === -3);
+  console.log('O', oIsWinner);
+
+  let isTie = board.some(square => square === null);
+
+  if (xIsWinner) {
+    winner = 1;
+  } else if (oIsWinner) {
+    winner = -1;
+  } else {
+    if (isTie === false) {
+      winner = 't';
+    }
+  }
+
+  render();
+}
