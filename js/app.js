@@ -74,6 +74,13 @@ function handleClick(evt) {
     winner = null;
     placePiece(sqIdx);
     checkForWinner(sqIdx);
+    if (winner === null) {
+        // Only check for tie if there is no winner
+        var isTie = board.every(function (square) { return square !== 0; });
+        if (isTie) {
+            winner = 't';
+        }
+    }
     render();
 }
 function placePiece(idx) {
@@ -91,7 +98,7 @@ function checkForWinner() {
     console.log('X', xIsWinner);
     var oIsWinner = totals.some(function (o) { return o === -3; });
     console.log('O', oIsWinner);
-    var isTie = board.some(function (square) { return square === null; });
+    var isTie = board.every(function (square) { return square !== 0; });
     if (xIsWinner) {
         winner = 1;
     }
