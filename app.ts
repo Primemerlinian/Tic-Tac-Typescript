@@ -11,7 +11,8 @@ const winningCombos: number[][] = [
 ]
 
 /*---------------------------- Variables (state) ----------------------------*/
-let turn: number, winner: boolean, tie: boolean, board: (number| null) []
+let board: number[], turn: number, winner: boolean, tie: boolean
+
 
 
 
@@ -26,15 +27,17 @@ const resetBtnEl: HTMLButtonElement | null = document.querySelector(".reset-butt
 
 
 
-boardEl?.addEventListener('click', handleClick);
-resetBtnEl?.addEventListener('click', init);
-/*-------------------------------- Functions --------------------------------*/
+/*----------------------------- Event Listeners -----------------------------*/
 
+
+boardEl?.addEventListener('click', handleClick);
+resetBtn?.addEventListener('click', init);
+/*-------------------------------- Functions --------------------------------*/
 init()
 
 function init(): void {
 board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-turn = 1
+turn = -1
 winner = false
   tie = false
   console.log(turn)
@@ -44,28 +47,13 @@ function render(): void {
   updateMessage();
 }
 
-squareEls.forEach(square => square.addEventListener("click", (handleClick as (evt: Event) => void)));
-
-
-
-if (resetBtnEl) resetBtnEl.addEventListener("click", init);
-
-
 
 function updateBoard(): void {
-  board.forEach((space, idx) => {
-    const choice = squareEls[idx] as HTMLElement;
-    if (space === null) {
-      choice.textContent = '';
-      return;
-    }
-    resetBtnEl.removeAttribute('hidden');
-    if (space == 1) {
-      choice.textContent = 'X';
-    } else if (space === -1) {
-      choice.textContent = 'O';
-    }
-  });
+  board.forEach((square, idx) => {
+    if (square === 1) squareEls[idx].textContent = 'X'
+    else if (square === -1) squareEls[idx].textContent = 'O'
+    else squareEls[idx].textContent = ''
+  })
 }
 
 function updateMessage(): void {
