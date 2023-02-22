@@ -1,3 +1,4 @@
+/*-------------------------------- Constants --------------------------------*/
 var winningCombos = [
     [0, 1, 2],
     [3, 4, 5],
@@ -8,107 +9,86 @@ var winningCombos = [
     [0, 4, 8],
     [2, 4, 6],
 ];
-var turn, winner, tie, board;
+/*---------------------------- Variables (state) ----------------------------*/
+var board, turn, winner, tie;
+/*------------------------ Cached Element References ------------------------*/
+var messgaeEl = document.getElementById('message');
+var squareEls = document.querySelectorAll(".sqr");
+var boardEl = document.querySelector('.board');
+var resetBtn = document.querySelector('.reset-btn');
+/*----------------------------- Event Listeners -----------------------------*/
+boardEl === null || boardEl === void 0 ? void 0 : boardEl.addEventListener('click', handleClick);
+resetBtn === null || resetBtn === void 0 ? void 0 : resetBtn.addEventListener('click', init);
+/*-------------------------------- Functions --------------------------------*/
+init();
 function init() {
     board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    turn = 1;
+    turn = -1;
     winner = false;
     tie = false;
     console.log(turn);
 }
-init();
-var squareEls = document.querySelectorAll('.sqr');
-var messageEl = document.querySelector('#message');
-var boardEl = document.querySelector('.board');
-var resetBtnEl = document.querySelector('#reset-button');
-boardEl === null || boardEl === void 0 ? void 0 : boardEl.addEventListener('click', handleClick);
-resetBtnEl === null || resetBtnEl === void 0 ? void 0 : resetBtnEl.addEventListener('click', init);
-squareEls.forEach(function (square) { return square.addEventListener("click", handleClick); });
-if (resetBtnEl)
-    resetBtnEl.addEventListener("click", init);
-function render(evt) {
+function render() {
     updateBoard();
     updateMessage();
 }
 function updateBoard() {
-    board.forEach(function (space, idx) {
-        var choice = squareEls[idx];
-        if (space === null) {
-            choice.textContent = '';
-            return;
-        }
-        resetBtnEl.removeAttribute('hidden');
-        if (space == 1) {
-            choice.textContent = 'X';
-        }
-        else if (space === -1) {
-            choice.textContent = 'O';
-        }
+    board.forEach(function (square, idx) {
+        if (square === 1)
+            squareEls[idx].textContent = 'X';
+        else if (square === -1)
+            squareEls[idx].textContent = 'O';
+        else
+            squareEls[idx].textContent = '';
     });
 }
 function updateMessage() {
-    if (turn === -1 && winner === null) {
-        console.log(turn, winner);
-        messageEl.textContent = 'Player X turn!';
+    if (!winner && !tie) {
+        messgaeEl.textContent = "It's Player ".concat(turn === 1 ? 'X' : 'O', " turn");
     }
-    else if (turn === 1 && winner === null) {
-        messageEl.textContent = 'Player O turn!';
+    else if (!winner && tie) {
+        messgaeEl.textContent = "The game is a tie!";
     }
-    else if (winner === 't') {
-        messageEl.textContent = "It's a Tie!";
-    }
-    else if (winner === 1) {
-        messageEl.textContent = 'Congratulations X won!';
-    }
-    else if (winner === -1) {
-        messageEl.textContent = 'Congratulations O won!';
+    else {
+        messgaeEl.textContent = "Congrats! Player ".concat(turn === -1 ? 'O' : 'X', " wins!");
     }
 }
 function handleClick(evt) {
-    var sqIdx = parseInt(evt.target.id[2]);
-    if (board[sqIdx]) {
+    if (!(evt.target instanceof HTMLElement))
         return;
-    }
-    board[sqIdx] = turn;
-    turn = turn * -1;
-    winner = null;
+    var sqIdx = parseInt(evt.target.id.slice(2, 3), 10);
+    if (isNaN(sqIdx) || board[sqIdx] || winner)
+        return;
     placePiece(sqIdx);
-    checkForWinner(sqIdx);
-    if (winner === null) {
-        // Only check for tie if there is no winner
-        var isTie = board.every(function (square) { return square !== 0; });
-        if (isTie) {
-            winner = 't';
-        }
-    }
+    checkForTie();
+    checkForWinner();
+    switchPlayerTurn();
     render();
+}
+function checkForTie() {
+    tie = board.every(function (sqr) {
+        return sqr !== 0;
+    });
 }
 function placePiece(idx) {
     board[idx] = turn;
 }
 function checkForWinner() {
-    var totals = [];
-    winningCombos.forEach(function (combo) {
-        console.log(combo);
-        var sum = board[combo[0]] + board[combo[1]] + board[combo[2]];
-        console.log(sum);
-        totals.push(sum);
+    winningCombos.forEach(function (arr) {
+        var winning = 0;
+        arr.forEach(function (el) {
+            winning += board[el] || 0;
+        });
+        if (Math.abs(winning) === 3) {
+            winner = true;
+        }
     });
-    var xIsWinner = totals.some(function (x) { return x === 3; });
-    console.log('X', xIsWinner);
-    var oIsWinner = totals.some(function (o) { return o === -3; });
-    console.log('O', oIsWinner);
-    var isTie = board.every(function (square) { return square !== 0; });
-    if (xIsWinner) {
-        winner = 1;
-    }
-    else if (oIsWinner) {
-        winner = -1;
+}
+function switchPlayerTurn() {
+    if (winner === true) {
+        return;
     }
     else {
-        if (isTie === false) {
-            winner = 't';
-        }
+        turn *= -1;
     }
-    render();
 }

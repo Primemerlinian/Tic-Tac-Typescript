@@ -66,60 +66,46 @@ function updateMessage(): void {
 }
 
 function handleClick(evt: MouseEvent): void {
-  const sqIdx: number = parseInt((evt.target as HTMLElement).id[2]);
-  if (board[sqIdx]) {
-    return;
-  }
-  board[sqIdx] = turn;
-  turn = turn * -1;
-  winner = null;
-  placePiece(sqIdx);
-  checkForWinner(sqIdx);
+  if (!(evt.target instanceof HTMLElement)) return
 
-  if (winner === null) {
-    // Only check for tie if there is no winner
-    let isTie = board.every(square => square !== 0);
-    if (isTie) {
-      winner = 't';
-    }
-  }
+  const sqIdx = parseInt(evt.target.id.slice(2, 3), 10)
 
-  render();
+  if (isNaN(sqIdx) || board[sqIdx] || winner) return
+
+  placePiece(sqIdx)
+  checkForTie()
+  checkForWinner()
+  switchPlayerTurn()
+  render()
 }
 
+
+function checkForTie(): void {
+  tie = board.every(sqr => {
+    return sqr !== 0
+  })
+}
 
 function placePiece(idx: number): void {
   board[idx] = turn;
 }
 
 function checkForWinner(): void {
-  let totals: number[] = [];
-
-  winningCombos.forEach(combo => {
-    console.log(combo);
-    const sum = board[combo[0]] + board[combo[1]] + board[combo[2]];
-    console.log(sum);
-    totals.push(sum);
-  });
-
-  let xIsWinner = totals.some(x => x === 3);
-  console.log('X', xIsWinner);
-
-  let oIsWinner = totals.some(o => o === -3);
-  console.log('O', oIsWinner);
-
-  let isTie = board.every(square => square !== 0);
-
-
-  if (xIsWinner) {
-    winner = 1;
-  } else if (oIsWinner) {
-    winner = -1;
-  } else {
-    if (isTie === false) {
-      winner = 't';
+  winningCombos.forEach(function(arr: number[]): void {
+    let winning = 0;
+    arr.forEach(function(el: number): void {
+      winning += board[el] || 0;
+    });
+    if (Math.abs(winning) === 3) {
+      winner = true;
     }
-  }
+  });
+}
 
-  render();
+function switchPlayerTurn(): void {
+  if (winner === true) {
+    return
+  } else {
+    turn *= -1
+  }
 }
