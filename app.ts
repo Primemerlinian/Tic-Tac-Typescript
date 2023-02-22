@@ -20,11 +20,10 @@ let board: number[], turn: number, winner: boolean, tie: boolean
 /*------------------------ Cached Element References ------------------------*/
 
 
-const squareEls: NodeListOf<Element> = document.querySelectorAll('.sqr');
-const messageEl: HTMLElement | null = document.querySelector('#message');
-const boardEl: HTMLElement | null = document.querySelector('.board');
-const resetBtnEl: HTMLButtonElement | null = document.querySelector(".reset-button");
-
+const messgaeEl = document.getElementById('message')!
+const squareEls = document.querySelectorAll(".sqr");
+const boardEl = document.querySelector<HTMLElement>('.board')!
+const resetBtn = document.querySelector<HTMLButtonElement>('.reset-btn');
 
 
 /*----------------------------- Event Listeners -----------------------------*/
@@ -57,17 +56,12 @@ function updateBoard(): void {
 }
 
 function updateMessage(): void {
-  if (turn === -1 && winner === null) {
-    console.log(turn, winner)
-    messageEl.textContent = 'Player X turn!';
-  } else if (turn === 1 && winner === null) {
-    messageEl.textContent = 'Player O turn!';
-  } else if (winner === 't') {
-    messageEl.textContent = "It's a Tie!";
-  } else if (winner === 1) {
-    messageEl.textContent = 'Congratulations X won!';
-  } else if (winner === -1) {
-    messageEl.textContent = 'Congratulations O won!';
+  if (!winner && !tie) {
+    messgaeEl.textContent = `It Is Currently Player ${turn === 1 ? 'X' : 'O'} turn`
+  } else if (!winner && tie) {
+    messgaeEl.textContent = "The game is a tie!"
+  } else {
+    messgaeEl.textContent = `Congrats! Player ${turn === -1 ? 'O' : 'X'} wins!`
   }
 }
 
